@@ -1,0 +1,23 @@
+{
+  "name": "ytdownlodr",
+  "version": "1.0.0",
+  "description": "Ein robuster, konfigurierbarer YouTube-Playlist-Downloader für automatisierte Abläufe, inklusive Caching, Fortschrittsanzeige, zufälliger Wartezeiten und strukturierter Log-Führung.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HalloWelt42/YTDownLodr.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HalloWelt42/YTDownLodr/issues"
+  },
+  "homepage": "https://github.com/HalloWelt42/YTDownLodr#readme",
+  "dependencies": {
+    "youtube-po-token-generator": "^0.4.0"
+  }
+}
