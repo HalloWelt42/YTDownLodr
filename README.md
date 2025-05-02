@@ -2,7 +2,6 @@
 
 Ein robuster, konfigurierbarer YouTube-Playlist-Downloader für automatisierte Abläufe, inklusive Caching, Fortschrittsanzeige, zufälliger Wartezeiten und strukturierter Log-Führung.
 
-
 ## 🔧 Features
 
 - Lädt komplette YouTube-Playlists (oder Kanalvideos) herunter
@@ -12,7 +11,7 @@ Ein robuster, konfigurierbarer YouTube-Playlist-Downloader für automatisierte A
 - Caching der Playlist mit Fortschrittsstatus (JSON)
 - Fehlerbehandlung für gesperrte Videos / Login-Pflicht
 - Logging bereits geladener Video-IDs in aufgeteilten `.log`-Dateien
-- Konfigurierbar per Python-JSON-Dictionary
+- Konfigurierbar per [config.json](./config.json)
 - Einfach erweiterbar, modular aufgebaut
 
 ## 📦 Setup
