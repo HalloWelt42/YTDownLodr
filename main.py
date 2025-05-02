@@ -192,16 +192,8 @@ class YTDownloader:
 
 # === Startkonfiguration ===
 if __name__ == "__main__":
-    config = {
-        "playlist_url": "",  # Beispiel Playlist-URL
-        "download_dir": "downloads",
-        "log_dir": "logs",  # Ordner für Log-Dateien
-        "cache_file": "playlist_cache.json",
-        "max_downloads": 50,
-        "wait_range": (0, 0),  # in Minuten
-        "resolutions": ["1080p", "720p", "480p", "360p", "240p", "144p"],
-        "ignore_list": []
-    }
+    with open("config.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
 
     downloader = YTDownloader(config)
     downloader.run()

@@ -1,0 +1,10 @@
+{
+  "playlist_url": "",
+  "download_dir": "./downloads",
+  "log_dir": "./logs",
+  "cache_file": "playlist_cache.json",
+  "max_downloads": 50,
+  "wait_range": [0, 2],
+  "resolutions": ["1080p", "720p", "480p", "360p", "240p", "144p"],
+  "ignore_list": []
+}
