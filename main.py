@@ -4,8 +4,37 @@ import json
 import time
 import random
 import subprocess
+import logging as log
 from pytubefix import Playlist, YouTube
 from pytubefix.exceptions import BotDetection
+
+# https://github.com/JuanBindez/pytubefix/pull/209#issuecomment-2607365842
+def po_token_verifier() -> tuple:
+    # Generiere den YouTube-Token
+    token_object = generate_youtube_token()
+    print(json.dumps(token_object, indent=4))
+
+    return token_object["visitorData"], token_object["poToken"]
+
+# https://github.com/JuanBindez/pytubefix/pull/209#issuecomment-2607365842
+def generate_youtube_token():
+    # Führe den Befehl aus, um den Token zu generieren
+    result = subprocess.run(["youtube-po-token-generator"], capture_output=True, text=True)
+
+    # Überprüfen, ob die Ausgabe erfolgreich war
+    if result.returncode != 0:
+        log.error(f"Fehler bei der Token-Generierung: {result.stderr}")
+        raise Exception("Fehler bei der Token-Generierung")
+
+    # Die Ausgabe als JSON interpretieren
+    try:
+        data = json.loads(result.stdout)
+        log.info(f"Token erfolgreich generiert: {data}")
+    except json.JSONDecodeError:
+        log.error(f"Fehler beim Parsen der JSON-Antwort: {result.stdout}")
+        raise Exception("Fehler beim Parsen der JSON-Antwort")
+
+    return data
 
 
 class FileUtils:
@@ -145,7 +174,9 @@ class YTDownloader:
             try:
                 yt = YouTube(
                     url=f"https://www.youtube.com/watch?v={vid_id}",
-                    on_progress_callback=ProgressBar.callback
+                    on_progress_callback=ProgressBar.callback,
+                    use_po_token=True,
+                    po_token_verifier=po_token_verifier
                 )
 
             except Exception as e:
