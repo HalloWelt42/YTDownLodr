@@ -36,7 +36,7 @@ pip install -r requirements.txt
 ### Nutzung
 
 ```bash
-python yt_playlist.py
+python main.py
 ```
 
 📝 Logs
