@@ -1,0 +1,6 @@
+/scanner/bits-und-so/downloads/*
+/downloads/*
+/.env
+/playlist_cache.json
+/logs/
+/downloads/
