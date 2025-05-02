@@ -193,7 +193,7 @@ class YTDownloader:
 # === Startkonfiguration ===
 if __name__ == "__main__":
     config = {
-        "playlist_url": "https://www.youtube.com/@ct3003/videos",  # Beispiel Playlist-URL
+        "playlist_url": "",  # Beispiel Playlist-URL
         "download_dir": "downloads",
         "log_dir": "logs",  # Ordner für Log-Dateien
         "cache_file": "playlist_cache.json",
