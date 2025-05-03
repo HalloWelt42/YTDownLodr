@@ -173,24 +173,24 @@ class YTDownloader:
             vid_id = self.video_ids[i]
             try:
                 yt = YouTube(
-                    url=f"https://www.youtube.com/watch?v={vid_id}",
-                    on_progress_callback=ProgressBar.callback,
-                    use_po_token=True,
-                    po_token_verifier=po_token_verifier
+                    url=f"https://www.youtube.com/watch?v={vid_id}"
                 )
+                yt.register_on_progress_callback(ProgressBar.callback)
+                yt.po_token_verifier = po_token_verifier
+                yt.use_po_token = True
 
             except Exception as e:
                 print(f"\n⚠️ Fehler: {vid_id} → {e}")
                 continue
 
             safe_title = FileUtils.sanitize(yt.title)
-            filename = f"{safe_title}.mp4"
-            filepath = os.path.join(self.channel_path, filename)
+            filepath_mp3 = os.path.join(self.channel_path, f"{safe_title}.mp3")
+            filepath_mp4 = os.path.join(self.channel_path, f"{safe_title}.mp4")
 
             if yt.title in self.ignore or yt.video_id in self.ignore:
                 print(f"\n⏭️ Übersprungen (Ignore): {yt.title}")
                 continue
-            if FileUtils.exists(filepath):
+            if FileUtils.exists(filepath_mp3 if config["audio_only"] else filepath_mp4):
                 print(f"\n⏭️ Übersprungen (vorhanden): {yt.title}")
                 continue
             if self.downloaded >= self.config["max_downloads"]:
@@ -198,12 +198,62 @@ class YTDownloader:
                 break
 
             try:
-                success = self.download_video(yt, filename)
-                if success:
-                    self.downloaded += 1
+                if config["audio_only"]:
+                    # AUDIO ONLY → .webm → .mp3
+                    audio_stream = yt.streams.filter(only_audio=True).order_by("abr").desc().first()
+                    if not audio_stream:
+                        print(f"\n⚠️ Kein Audiostream für {yt.title}")
+                        continue
+
+                    print(f"\n🎵 Lade Audio: {yt.title}")
+                    temp_audio_path = os.path.join(self.channel_path, f"{safe_title}.webm")
+                    audio_stream.download(output_path=self.channel_path, filename=f"{safe_title}.webm")
+
+                    # Konvertiere zu MP3
+                    subprocess.run([
+                        "ffmpeg", "-y",
+                        "-i", temp_audio_path,
+                        "-vn",
+                        "-acodec", "libmp3lame",
+                        "-ab", "192k",
+                        filepath_mp3
+                    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+                    os.remove(temp_audio_path)
+
                 else:
-                    print(f"\n⚠️ Keine Streams für {yt.title}")
-                    continue
+                    # VIDEO + AUDIO herunterladen und zusammenbauen
+                    video_stream = yt.streams.filter(progressive=False, file_extension="mp4", only_video=True) \
+                        .order_by("resolution").desc().first()
+                    audio_stream = yt.streams.filter(only_audio=True).order_by("abr").desc().first()
+
+                    if not video_stream or not audio_stream:
+                        print(f"\n⚠️ Kein passender Stream für {yt.title}")
+                        continue
+
+                    print(f"\n📽️ Lade Video: {yt.title}")
+                    temp_video_path = os.path.join(self.channel_path, f"{safe_title}_video.mp4")
+                    temp_audio_path = os.path.join(self.channel_path, f"{safe_title}_audio.webm")
+
+                    video_stream.download(output_path=self.channel_path, filename=f"{safe_title}_video.mp4")
+                    audio_stream.download(output_path=self.channel_path, filename=f"{safe_title}_audio.webm")
+
+                    # Zusammenfügen zu MP4
+                    subprocess.run([
+                        "ffmpeg", "-y",
+                        "-i", temp_video_path,
+                        "-i", temp_audio_path,
+                        "-c:v", "copy",
+                        "-c:a", "aac",
+                        "-strict", "experimental",
+                        filepath_mp4
+                    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+                    os.remove(temp_video_path)
+                    os.remove(temp_audio_path)
+
+                self.downloaded += 1
+
             except BotDetection as e:
                 print(f"\n🚫 Bot erkannt: {yt.title} → {e}")
                 break
